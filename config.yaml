@@ -1,6 +1,16 @@
 commands:
-  - name: ping
-    args: ["-c", "4"]
+  - name: python3
+    args: ["/home/sn0wb/action/XSStrike/xsstrike.py", "-u"]
 
-  - name: curl
-    args: ["-i"]
+  - name: whois
+
+  - name: nslookup
+
+  - name: python3
+    args: ["/home/sn0wb/action/FinalRecon/finalrecon.py","--headers", "--whois", "--url"]
+
+  - name: nikto
+    args: ["-h"]
+
+
+
