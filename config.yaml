@@ -1,0 +1,6 @@
+commands:
+  - name: ping
+    args: ["-c", "4"]
+
+  - name: curl
+    args: ["-i"]
