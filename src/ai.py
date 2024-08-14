@@ -58,12 +58,19 @@ def display_markdown_file(file_path: str):
     except Exception as e:
         print(f"An error occurred: {e}")
 
-def main(directory):
-    prompt = "Generate a simple Web reconnaissance report based on the results from the files provided. Take a approach as a pentester trying to evaluate the target security, be cohesive and clear in your report. Also justify to the left the report headings."
+def report(directory):
+    prompt = """
+            Generate a Web reconnaissance report based on the results from the files provided. 
+            Take a approach as a pentester trying to evaluate the target security, be cohesive and clear in your report. 
+            Also justify to the left the report headings.    
+            Suggest some payloads to test the found vulnerabilities.
+            Suggest next steps to further evaluate the target.
+            """
 
     content = read_files_in_directory(directory)
+    print(Panel(f"Generating report [italic red]{directory}[/italic red]"))
     report_content = generate_report(content, prompt)
-    output_path = os.path.join(directory, f"{directory}.md")
+    output_path = os.path.join(directory, "report.md")
     save_report_as_markdown(report_content, output_path)
     print(Panel(f"Report saved to {output_path}"))
 

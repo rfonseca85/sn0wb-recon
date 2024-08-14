@@ -1,16 +1,19 @@
 commands:
-  - name: python3
-    args: ["/home/sn0wb/action/XSStrike/xsstrike.py", "-u"]
-
   - name: whois
-
+    command: "whois {target}"
+  
   - name: nslookup
+    command: "nslookup {target}"
 
-  - name: python3
-    args: ["/home/sn0wb/action/FinalRecon/finalrecon.py","--headers", "--whois", "--url"]
+  - name: gobuster_dns
+    command: "gobuster dns -w /usr/share/wordlists/seclist/Discovery/DNS/subdomains-top1million-20000.txt -t 50 -d {target}"
+
+  - name: gobuster_dir
+    command: "gobuster dir -w /usr/share/wordlists/seclist/Discovery/Web-Content/directory-list-2.3-small.txt -t 50 -u {target}"
 
   - name: nikto
-    args: ["-h"]
+    command: "nikto -h {target}"
 
-
+  - name: finalrecon
+    command: "python3 /home/sn0wb/action/FinalRecon/finalrecon.py -nb --crawl --headers --whois --dns --dir --full -ps --url http://{target}"    
 
