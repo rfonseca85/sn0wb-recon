@@ -31,15 +31,34 @@ OPENAI_API_KEY=YOUR_OPENAI_KEY_HERE
 ```
 
 ### Tool Configuration
-Modify the config.yml file to specify the tools you want to run and their parameters. You can add new tools or adjust the existing ones as needed. Below is an example configuration:
+Modify the config.yml file to specify the tools you want to run in each phase and their parameters. You can add new tools or adjust the existing ones as needed. Below is an example configuration:
 
 ```yaml
-commands:
-  - name: ping
-    args: ["-c", "4"]
+recon:
+  - name: whois
+    command: "whois {target}"
+  
+  - name: nslookup
+    command: "nslookup {target}"
 
-  - name: curl
-    args: ["-i"]
+  - name: whatweb
+    command: "whatweb {target}"
+    
+  - name: gobuster_dns
+    command: "gobuster dns -w /usr/share/wordlists/seclist/Discovery/DNS/subdomains-top1million-20000.txt -t 50 -d {target} | grep -vE 'Progress'"
+
+  - name: fuf_did
+    command: "ffuf -w /usr/share/wordlists/seclist/Discovery/Web-Content/directory-list-2.3-small.txt:FUZZ -u http://{target}/FUZZ -recursion -recursion-depth 1 -t 50 -fc 301"
+
+  - name: nikto
+    command: "nikto -h {target}"
+
+  - name: finalrecon
+    command: "python3 /home/sn0wb/action/FinalRecon/finalrecon.py -nb --crawl --headers --whois --dns --dir --full --url http://{target} | grep -vE 'Requesting|API key not found|Skipping|Scanning|Requests'"    
+
+  - name: katana
+    command: "katana -u {target} --headless -d 3 -aff -f qurl"    
+
 ```
 
 ## Usage
@@ -48,13 +67,17 @@ commands:
 To run the reconnaissance tools:
 
 ```bash 
-python3 sn0wbRecon.py recon -u https://www.inlanefreight.com/ -n inlanefreight
+python3 sn0wb.py recon -u inlanefreight.com
 ```
+```bash
+python3 sn0wb.py scan -u inlanefreight.com
+```
+
 
 ### Generate AI Report
 
 ```bash 
-python3 sn0wbRecon.py report -o inlanefreight
+python3 sn0wb.py report -r recon -d results/inlanefreight_com/recon
 ```
 
 ## License

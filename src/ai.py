@@ -11,7 +11,7 @@ from rich.panel import Panel
 # Load environment variables from .env file
 load_dotenv()
 ## Set the API key and model name
-MODEL="gpt-4o-mini"
+MODEL="gpt-4o"
 api_key = os.getenv('OPENAI_API_KEY')
 client = OpenAI(api_key=api_key)
 
@@ -58,14 +58,39 @@ def display_markdown_file(file_path: str):
     except Exception as e:
         print(f"An error occurred: {e}")
 
-def report(directory):
-    prompt = """
-            Generate a Web reconnaissance report based on the results from the files provided. 
-            Take a approach as a pentester trying to evaluate the target security, be cohesive and clear in your report. 
-            Also justify to the left the report headings.    
-            Suggest some payloads to test the found vulnerabilities.
-            Suggest next steps to further evaluate the target.
-            """
+def report(report_type, directory):
+    prompt = ""
+    
+    if report_type == "recon":
+        prompt = """
+                Generate a Web reconnaissance report based on the results from the files provided. 
+                Take a approach as a pentester trying to evaluate the target security, be cohesive and clear in your report.   
+                This report should be per command executed, but also should have a sumary at the end with the most important information
+                Also should contain the following:
+                - What is the target?
+                - What are the technologies used?
+                - What are all the urls found?
+    
+                Suggest next steps to further evaluate the target.
+
+                Dont forget to list all the pages/urls found in the crowling process.
+                Dont cut the information, share everything you found.
+                """
+    elif report_type == "scan":
+        prompt = """
+                Generate a Web Vulnerability report based on the results from the files provided. 
+                Take a approach as a pentester trying to evaluate the target security.   
+                It should contain but not limited to the following:
+                - What are the vulnerabilities found?
+                - What are the risks associated with the vulnerabilities?
+                - How can the vulnerabilities be exploited?
+                - Example of how to exploit the vulnerabilities.
+                
+                Suggest next steps to further evaluate the target.
+
+                Dont cut the information, share everything you found.
+                """
+
 
     content = read_files_in_directory(directory)
     print(Panel(f"Generating report [italic red]{directory}[/italic red]"))

@@ -1,12 +1,10 @@
 import yaml
 import subprocess
 import os
-import re
 from tqdm import tqdm
 from rich import print
 from rich.panel import Panel
 import threading
-import time
 
 def load_config(config_file):
     with open(config_file, 'r') as file:
@@ -21,12 +19,10 @@ def run_command(phase, name, command, target):
     real_command = command.replace("{target}", target)
     print(Panel(f"Command [italic red]{real_command}[/italic red] started. Output will be saved to {result_file}"))
 
-    command_list = command.replace("{target}", target).split() 
+    process = subprocess.Popen(real_command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
 
     with open(result_file, 'w') as file:
-        process = subprocess.Popen(command_list, stdout=subprocess.PIPE, stderr=subprocess.PIPE, bufsize=1, universal_newlines=True)
-        
-        with tqdm(desc="Progress", ncols=100, unit="line") as pbar:
+        with tqdm(desc=f"Progress on {name}", ncols=100, unit=" lines") as pbar:
             for line in process.stdout:
                 file.write(line)
                 file.flush()  # Ensure the buffer is written to the file immediately
@@ -39,19 +35,23 @@ def run_command(phase, name, command, target):
         
         process.wait()
     
-    print(f"[italic purple] --> Command {real_command} completed. Output saved to {result_file}[/italic purple]")
+    print(f"[italic purple] --> Command {name} completed. Output saved to {result_file}[/italic purple]")
 
-def recon(target):
-    config_data = load_config("./config.yaml")
-    threadsRecon = []
+def exec(target, web_type):
+    config_data = load_config(f"./config.yaml")
+    selected_commands = []
     
-    for command in config_data['commands']:
-        
-        t = threading.Thread(target=run_command, args=("recon", command['name'], command['command'], target))
+    for command in config_data[web_type]:
+        user_input = input(f"Run command {command['name']}? (y/n): ")
+        if user_input.lower() == "y":
+            selected_commands.append(command)
+
+    threadsRecon = []
+    for command in selected_commands:
+        t = threading.Thread(target=run_command, args=(web_type, command['name'], command['command'], target))
         threadsRecon.append(t)
         t.start()
-        time.sleep(3)  # Wait for 5 seconds before starting the next command
 
     for t in threadsRecon:
         t.join()
-        
+
